@@ -90,6 +90,9 @@ if __name__ == '__main__':
                         help='hidden layer dimensions of projector (List)')
     parser.add_argument('--p_hidden_layers', type=int, default=2, help='number of hidden layers in projector')
 
+    # ensemble count
+    parser.add_argument('--ensemble_count', type=int, default=1, help='number of models to ensemble. If >1, ensemble will be used.')
+
 
     args = parser.parse_args()
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
@@ -102,6 +105,9 @@ if __name__ == '__main__':
 
     print('Args in experiment:')
     print(args)
+
+    if args.ensemble_count > 1:
+        print('Using ensemble model. Ensemble count: {}'.format(args.ensemble_count))
 
     Exp = Exp_Long_Term_Forecast
 

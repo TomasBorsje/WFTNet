@@ -8,11 +8,6 @@ from layers.Conv_Blocks import Inception_Block_V1
 import ptwt
 import numpy as np
 
-"""
-This is the WaveletColab model, which is my improvement/contribution to the Wavelet model.
-"""
-
-
 def pair(t):
     return t if isinstance(t, tuple) else (t, t)
 
@@ -114,9 +109,9 @@ class Wavelet(nn.Module):
         return res
 
 
-class Model(nn.Module):
+class WaveletModel(nn.Module):
     def __init__(self, configs):
-        super(Model, self).__init__()
+        super(WaveletModel, self).__init__()
         self.configs = configs
         self.seq_len = configs.seq_len
         self.label_len = configs.label_len
@@ -173,3 +168,23 @@ class Model(nn.Module):
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
         dec_out = self.forecast(x_enc, x_mark_enc, x_dec, x_mark_dec)
         return dec_out[:, -self.pred_len :, :]  # [B, L, D]
+
+class Model(nn.Module):
+    """Class that uses multiple WFTNet models as an ensemble for forecasting."""
+    def __init__(self, configs):
+        super(Model, self).__init__()
+        self.models = nn.ModuleList([WaveletModel(configs) for _ in range(configs.ensemble_count)])
+
+    def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, mask=None):
+        # Store the predictions from each model in a list
+        predictions = []
+
+        for model in self.models:
+            # Pass the inputs through the individual model
+            model_output = model(x_enc, x_mark_enc, x_dec, x_mark_dec, mask)
+            predictions.append(model_output)
+
+        # Calculate the average prediction across all the ensemble models
+        average_prediction = torch.mean(torch.stack(predictions, dim=0), dim=0)
+
+        return average_prediction
