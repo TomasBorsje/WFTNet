@@ -23,7 +23,7 @@ if not os.path.exists(save_folder):
 global_periodicity = np.sin(np.linspace(0, 2*np.pi*20, num_samples))
 
 # Save it as global_periodicity.csv
-df = pd.DataFrame({"Time": time_index, "Value": global_periodicity})
+df = pd.DataFrame({"date": time_index, "Value": global_periodicity})
 df.to_csv(save_folder + "global_periodicity.csv", index=False)
 
 # Now generate the local periodicity dataset
@@ -42,14 +42,14 @@ window = 10
 smoothed_data = np.convolve(localised_data, np.ones(window) / window, mode='same')
 
 # save the localised data as local_periodicity.csv
-df = pd.DataFrame({"Time": time_index, "Value": localised_data})
+df = pd.DataFrame({"date": time_index, "Value": localised_data})
 df.to_csv(save_folder + "local_periodicity.csv", index=False)
 
 # combine both datasets to create the dataset with local and global feature patterns
 global_local_periodicity = global_periodicity + localised_data
 
 # Save it as global_local_periodicity.csv
-df = pd.DataFrame({"Time": time_index, "Value": global_local_periodicity})
+df = pd.DataFrame({"date": time_index, "Value": global_local_periodicity})
 df.to_csv(save_folder + "global_local_periodicity.csv", index=False)
 
 # Now finally, plot all three datasets separately
