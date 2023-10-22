@@ -27,19 +27,11 @@ df = pd.DataFrame({"date": time_index, "Value": global_periodicity})
 df.to_csv(save_folder + "global_periodicity.csv", index=False)
 
 # Now generate the local periodicity dataset
-lag_order = 3
-localised_data = np.zeros(num_samples)
-
-# Initialize the first samples from a gaussian distribution
-localised_data[:lag_order] = np.random.normal(0, 1, lag_order)
-
-# Generate the remaining points using a weighted sum of the previous data points + a random value
-for i in range(lag_order, num_samples):
-    localised_data[i] = 0.7 * localised_data[i-1] + 0.4 * localised_data[i-2] - 0.4 * localised_data[i-3] + np.random.normal(0, 0.5)
-
-# smooth the data with a moving average
-window = 10
-smoothed_data = np.convolve(localised_data, np.ones(window) / window, mode='same')
+# We use three random sin waves and add some minor gaussian noise
+localised_data = (np.sin(2 * np.pi * 10 * np.arange(num_samples)) +
+                  0.5 * np.sin(2 * np.pi * 50 * np.arange(num_samples)) +
+                  0.3 * np.sin(2 * np.pi * 100 * np.arange(num_samples)) +
+                  np.random.normal(0, 0.1, num_samples)) * 3
 
 # save the localised data as local_periodicity.csv
 df = pd.DataFrame({"date": time_index, "Value": localised_data})
